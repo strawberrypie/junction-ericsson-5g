@@ -12,6 +12,7 @@ import requests
 import lxml.html as lh
 import sys
 
+
 PORT_NUMBER = '8080'
 if len(sys.argv) == 2:
     PORT_NUMBER = sys.argv[1]
@@ -19,6 +20,7 @@ if len(sys.argv) == 2:
 SERVER_URL = 'http://127.0.0.1:' + PORT_NUMBER
 ADMIN_URL = SERVER_URL + '/admin'
 GAME_START_URL = ADMIN_URL + '/start'
+GAME_STOP_URL = ADMIN_URL + '/stop'
 API_BASE_URL = SERVER_URL + '/api/v1'
 WORLD_STATUS_URL = API_BASE_URL + '/world'
 TEAM_BASE_URL = ADMIN_URL + '/team'
@@ -65,8 +67,11 @@ def send_post_request(url, data=None, token=None):
     return r
 
 
-def add_team_and_get_token():
-    team_name = 'anton-and-dima-' + ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=10))
+def add_team_and_get_token(team_name=None):
+    if team_name is None:
+        team_name = 'anton-and-dima-' + ''.join(random.choices(string.ascii_lowercase
+                                                               + string.ascii_uppercase
+                                                               + string.digits, k=10))
     body = send_post_request(TEAM_BASE_URL, {'team_name': team_name})
 
     # Store the contents of the website under doc
@@ -78,12 +83,17 @@ def add_team_and_get_token():
 
     logging.info('Added team %s', team_name)
 
-    return token
+    return team_name, token
 
 
 def start_game():
     send_put_request(GAME_START_URL)
     logging.info('Started game')
+
+
+def stop_game():
+    send_put_request(GAME_STOP_URL)
+    logging.info('Stopped game')
 
 
 def get_world():
@@ -230,6 +240,14 @@ def get_cars(world):
     return cars
 
 
+def get_team_stats(team_name, world):
+    for team_id, stats in world['teams'].items():
+        if stats['name'] == team_name:
+            return int(team_id), stats['score']
+    else:
+        return None
+
+
 def move_car(car_id, direction, token):
     logging.debug('Moving car ID %d to the %s', car_id, direction.name)
     request_content = json.dumps({
@@ -297,24 +315,16 @@ def move_cars(token, world, previous_car_directions=None):
 
 
 def main():
+    from agents.baseline import BaselineAgent
+
     setup()
-    token = add_team_and_get_token()
+
+    agent = BaselineAgent()
     start_game()
-    world = get_world()
 
-    previous_car_directions = {}
     while True:
-        logging.info('Starting new iteration')
-        world = get_world()
-        if not world:
-            # Game must have ended, start it again
-            logging.info('Game ended, starting again')
-            start_game()
-            continue
-
-        new_car_directions = move_cars(token, world, previous_car_directions)
-        previous_car_directions = new_car_directions
-        time.sleep(1)
+        agent.move()
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
