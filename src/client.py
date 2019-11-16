@@ -74,12 +74,8 @@ def add_team_and_get_token(team_name=None):
                                                                + string.digits, k=10))
     body = send_post_request(TEAM_BASE_URL, {'team_name': team_name})
 
-    # Store the contents of the website under doc
-    doc = lh.fromstring(body.text)
-    tr_elements = doc.xpath('//tr')
-    for e in tr_elements:
-        if e[1].text_content() == team_name:
-            token = e[2].text_content()
+    team_name = body.json()['name']
+    token = body.json()['token']
 
     logging.info('Added team %s', team_name)
 
