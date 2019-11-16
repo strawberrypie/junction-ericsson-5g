@@ -11,8 +11,9 @@ pipeline {
         }
         stage("Push") {
             steps {
-                docker.withRegistry('https://registry.hub.docker.com', 'hub.docker.com') {
-                    sh "make push"
+	        withCredentials([string(credentialsId: 'hub.docker.com', variable: 'PASSWORD')]) {
+		    sh "docker login -u=dfkozlov -p=$PASSWORD"
+		    sh "make push"
 		}
             }
         }
