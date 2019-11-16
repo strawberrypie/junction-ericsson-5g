@@ -2,12 +2,13 @@ import logging
 from abc import ABC
 from typing import NoReturn
 
-from client import add_team_and_get_token, get_world, index_to_coordinates, get_position_after_move, move_car
+from client import index_to_coordinates, get_position_after_move, move_car
 
 
 class Agent(ABC):
-    def __init__(self, team_name=None):
-        self.team_name, self.token = add_team_and_get_token(team_name)
+    def __init__(self, team_name=None, token=None):
+        self.team_name = team_name
+        self.token = token
 
     def move_car(self, world, car_id, car, new_direction):
         if new_direction:
