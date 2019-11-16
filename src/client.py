@@ -6,10 +6,7 @@ import logging
 import random
 import time
 import string
-
 import requests
-
-import lxml.html as lh
 import sys
 
 
@@ -92,8 +89,8 @@ def stop_game():
     logging.info('Stopped game')
 
 
-def get_world():
-    r = requests.get(WORLD_STATUS_URL)
+def get_world(token=None):
+    r = send_post_request(WORLD_STATUS_URL, token=token)
     world = r.json()
 
     # If game has ended, world just contains an informative message which is
@@ -157,6 +154,14 @@ def directions_are_opposites(d1, d2):
     return False
 
 
+def get_possible_directions(world, position):
+    return [
+        direction
+        for direction in CarDirection
+        if move_in_direction_is_possible(position, direction, world)
+    ]
+
+
 def get_next_direction(world, position, previous_direction):
     """Returns the direction to be followed in the next turn
 
@@ -171,11 +176,7 @@ def get_next_direction(world, position, previous_direction):
         repr(index_to_coordinates(position, world['width'])),
         previous_direction.name)
 
-    possible_directions = []
-    for direction in CarDirection:
-        if move_in_direction_is_possible(position, direction, world):
-            logging.debug('Direction %s is available', direction.name)
-            possible_directions.append(direction)
+    possible_directions = get_possible_directions(world, position)
 
     if len(possible_directions) == 0:
         # Dynamic constraint must have trapped the car somewhere
@@ -312,15 +313,19 @@ def move_cars(token, world, previous_car_directions=None):
 
 def main():
     from agents.baseline import BaselineAgent
+    from agents.move_closest_customer import MoveClosestCustomerAgent
 
     setup()
 
-    agent = BaselineAgent()
-    start_game()
+    agent = MoveClosestCustomerAgent()
+    try:
+        start_game()
+    except:
+        print('The game already started! Continuing...')
 
     while True:
+        logging.info('New iteration started...')
         agent.move()
-        time.sleep(0.1)
 
 
 if __name__ == '__main__':
