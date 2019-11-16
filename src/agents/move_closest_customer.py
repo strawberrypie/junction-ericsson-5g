@@ -109,11 +109,11 @@ class MoveClosestCustomerAgent(Agent):
             return float('+inf')
 
     def move(self, world) -> NoReturn:
-        current_team_id = [
-            team
-            for team, team_info in world['teams'].items()
+        current_team_id = int([
+            team_id
+            for team_id, team_info in world['teams'].items()
             if team_info['name'] == self.team_name
-        ][0]
+        ][0])
 
         cars = get_cars(world)
         current_player_cars = {
