@@ -57,6 +57,7 @@ class MoveClosestCustomerAgent(Agent):
                     state = 'searching'
         elif state == 'delivering':
             if self.cars_state[car_id]['prev_capacity'] > car['used_capacity']:
+                self.cars_state[car_id]['customers'].pop()
                 self.cars_state[car_id]['prev_capacity'] = car['used_capacity']
                 if car['used_capacity'] > 0:
                     state = 'switch_delivering'
@@ -95,7 +96,7 @@ class MoveClosestCustomerAgent(Agent):
             elif state == 'delivering':
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
             elif state == 'switch_delivering':
-                self.cars_state[car_id]['curr_customer'] = self.cars_state[car_id]['customers'].pop()
+                self.cars_state[car_id]['curr_customer'] = self.cars_state[car_id]['customers'][-1]
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
                 self.cars_state[car_id]['state'] = 'delivering'
 
