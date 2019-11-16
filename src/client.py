@@ -4,27 +4,15 @@ import enum
 import json
 import logging
 import random
-import time
-import string
 import requests
 import sys
 
 
-PORT_NUMBER = '8080'
-if len(sys.argv) == 2:
-    PORT_NUMBER = sys.argv[1]
-SERVER_HOST = '127.0.0.1'
-if len(sys.argv) == 3:
-    SERVER_HOST = sys.argv[1]
-    PORT_NUMBER = sys.argv[2]
-
-SERVER_URL = f'http://{SERVER_HOST}:{PORT_NUMBER}'
-ADMIN_URL = SERVER_URL + '/admin'
-GAME_START_URL = ADMIN_URL + '/start'
-GAME_STOP_URL = ADMIN_URL + '/stop'
+SERVER_URL = f'http://127.0.0.1:8081'
+if len(sys.argv) >= 2:
+    SERVER_URL = sys.argv[1]
 API_BASE_URL = SERVER_URL + '/api/v1'
 WORLD_STATUS_URL = API_BASE_URL + '/world'
-TEAM_BASE_URL = ADMIN_URL + '/team'
 ACTIONS_URL = API_BASE_URL + '/actions'
 
 
@@ -66,31 +54,6 @@ def send_post_request(url, data=None, token=None):
         r = requests.post(url, data)
     log_response(r)
     return r
-
-
-def add_team_and_get_token(team_name=None):
-    if team_name is None:
-        team_name = 'anton-and-dima-' + ''.join(random.choices(string.ascii_lowercase
-                                                               + string.ascii_uppercase
-                                                               + string.digits, k=10))
-    body = send_post_request(TEAM_BASE_URL, {'team_name': team_name})
-
-    team_name = body.json()['name']
-    token = body.json()['token']
-
-    logging.info('Added team %s', team_name)
-
-    return team_name, token
-
-
-def start_game():
-    send_put_request(GAME_START_URL)
-    logging.info('Started game')
-
-
-def stop_game():
-    send_put_request(GAME_STOP_URL)
-    logging.info('Stopped game')
 
 
 def get_world(token=None):
@@ -320,7 +283,11 @@ def main():
 
     setup()
 
-    agent = MoveClosestCustomerAgent()
+    if len(sys.argv) == 4:
+        team_name = sys.argv[2]
+        token = sys.argv[3]
+
+    agent = MoveClosestCustomerAgent(team_name=team_name, token=token)
 
     while True:
         world = get_world(agent.token)
@@ -330,5 +297,7 @@ def main():
         else:
             logging.info('Game is stopped! Trying again...')
 
+
 if __name__ == '__main__':
+    # Usage: python client.py http://api.citysimulation.eu/moore TEAM_NAME TOKEN
     main()
