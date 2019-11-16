@@ -5,6 +5,9 @@ pipeline {
     stages {
         stage("Build") {
             steps {
+	        script {
+                    properties([pipelineTriggers([pollSCM('H/5 * * * *')])])
+                }
                 checkout scm
                 sh "make build"
             }
