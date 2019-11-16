@@ -30,6 +30,43 @@ class MoveClosestCustomerAgent(Agent):
         super().__init__(team_name=team_name)
         self.graph = None
 
+        self.cars_state = None
+
+    def get_next_state(self, world, car_id, car):
+        state = self.cars_state[car_id]['state']
+        if state == 'searching':
+            return state
+        elif state == 'getting_customer':
+            if self.cars_state[car_id]['prev_capacity'] < car['used_capacity']:
+                print('Car ' + str(car_id) + ' has grabbed a client')
+                self.cars_state[car_id]['customers'].append(self.cars_state[car_id]['curr_customer'])
+                self.cars_state[car_id]['curr_customer'] = None
+                self.cars_state[car_id]['prev_capacity'] += 1
+                if self.cars_state[car_id]['prev_capacity'] == car['capacity']:
+                    state = 'switch_delivering'
+                else:
+                    state = 'searching'
+            else:
+                car_x, car_y = index_to_coordinates(car['position'], world['width'])
+                closest_customer_id = self.get_closest_waiting_customer((car_x, car_y), world)
+                closest_customer_pos = world['customers'][closest_customer_id]['origin']
+
+                if closest_customer_pos == self.cars_state[car_id]['curr_customer']['origin']:
+                    state = 'getting_customer'
+                else:
+                    state = 'searching'
+        elif state == 'delivering':
+            if self.cars_state[car_id]['prev_capacity'] > car['used_capacity']:
+                self.cars_state[car_id]['prev_capacity'] = car['used_capacity']
+                if car['used_capacity'] > 0:
+                    state = 'switch_delivering'
+                else:
+                    state = 'searching'
+            else:
+                state == 'delivering'
+
+        return state
+
     def get_next_direction(self, world, car_id, car):
         car_x, car_y = index_to_coordinates(car['position'], world['width'])
 
@@ -41,21 +78,28 @@ class MoveClosestCustomerAgent(Agent):
 
             target_pos = None
             # Case: car is empty — move to closest customer
-            if car['used_capacity'] == 0:
+            state = self.get_next_state(world, car_id, car)
+            self.cars_state[car_id][state] = state
+            print('Car ' + str(car_id) + ' state: ' + state + '; capacity : ' + str(car['used_capacity']) +
+                  ' ; max: ' + str(car['capacity']))
+            print(self.cars_state[car_id]['customers'])
+            if state == 'searching':
                 closest_customer_id = self.get_closest_waiting_customer((car_x, car_y), world)
                 closest_customer_pos = world['customers'][closest_customer_id]['origin']
                 target_pos = closest_customer_pos
-            # Case: car has customers — move to closest customer or to closest destination
-            elif car['used_capacity'] > 0:
-                closest_customer_id = self.get_closest_waiting_customer((car_x, car_y), world)
-                closest_customer_pos = world['customers'][closest_customer_id]['origin']
 
-                closest_destination_pos = self.get_closest_destination((car_x, car_y), car_id, world)
-                target_pos = self.get_closest_target(
-                    (car_x, car_y),
-                    [closest_customer_pos, closest_destination_pos],
-                    world
-                )
+                self.cars_state[car_id]['curr_customer'] = world['customers'][closest_customer_id]
+                self.cars_state[car_id]['state'] = 'getting_customer'
+            elif state == 'getting_customer':
+                target_pos =  self.cars_state[car_id]['curr_customer']['origin']
+            elif state == 'delivering':
+                target_pos = self.cars_state[car_id]['curr_customer']['destination']
+            elif state == 'switch_delivering':
+                self.cars_state[car_id]['curr_customer'] = self.cars_state[car_id]['customers'].pop()
+                target_pos = self.cars_state[car_id]['curr_customer']['destination']
+                self.cars_state[car_id]['state'] = 'delivering'
+
+
             if target_pos is not None:
                 target_coord = index_to_coordinates(target_pos, world['width'])
                 return self.get_best_direction(world, car_x, car_y, target_coord)
@@ -125,6 +169,16 @@ class MoveClosestCustomerAgent(Agent):
     def move(self) -> NoReturn:
         world = self.world
         cars = get_cars(world)
+
+        if self.cars_state is None:
+            self.cars_state = {}
+            for car_id, car in cars.items():
+                self.cars_state[car_id] = {
+                    'state': 'searching',
+                    'customers': [],
+                    'curr_customer': None,
+                    'prev_capacity': 0
+                }
 
         self.graph = make_graph(world)
 
