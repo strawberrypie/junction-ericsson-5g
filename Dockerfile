@@ -18,7 +18,9 @@ RUN apt update -y \
     httpie \
     systemd
 
-COPY city-sim_1.0.2_amd64.deb .
-RUN dpkg -i city-sim_1.0.2_amd64.deb | /bin/true
+WORKDIR /root
+COPY . .
+RUN dpkg -i city-sim_1.0.2_amd64.deb || /bin/true
 WORKDIR /opt/city
+EXPOSE 8080
 CMD ./citysim
