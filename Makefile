@@ -35,4 +35,8 @@ push:
 run:
 
 	${DOCKER_CMD} pull ${IMG_LATEST}
-	${DOCKER_CMD} run -it --rm -p 8081:8080 ${IMG_LATEST}
+	${DOCKER_CMD} run --name junction-2019 -it --rm -p 8081:8080 ${IMG_LATEST}
+
+stop:
+
+	${DOCKER_CMD} rm -f junction-2019
