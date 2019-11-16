@@ -1,0 +1,77 @@
+- block:
+    - name: Stop all docker containers
+      shell: docker stop $(docker ps -a -q) | echo "All docker containers were stopped"
+      ignore_errors: true
+
+    - name: Wait until all dockers are stopped
+      shell: docker ps -a -q --format {%raw%}"{{.Status}}"{%endraw%}
+      register: result
+      until: result.stdout.count("Up") == 0
+      retries: "{{ default_retries }}"
+      delay: "{{ default_delay }}"
+
+    - name: Remove all docker containers
+      shell: docker rm $(docker ps -a -q) | echo "All docker containers were removed"
+      ignore_errors: true
+
+    - name: Wait until all dockers are removed
+      shell: docker ps -a -q
+      register: result
+      until: result.stdout == ""
+      retries: "{{ default_retries }}"
+      delay: "{{ default_delay }}"
+
+    - name: Create docker-compose-{{ function_name }}.yml file
+      template:
+        src: "{{ role_path }}/files/docker-compose.yml"
+        dest: "{{ role_path }}/files/docker-compose-{{ function_name }}.yml"
+
+    - name: Deploy {{ function_name }} function
+      docker_service:
+        project_src: "{{ role_path }}/files"
+        files: "docker-compose-{{ function_name }}.yml"
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Run REST API tests
+      register: api_tests_output
+      docker_container:
+        command: /bin/bash -c "curl localhost:8081/api/v1/score"
+        name: "api-tests-{{ function_name }}"
+        image: "{{ api_tests_image }}"
+        network_mode: "host"
+        volumes:
+          - "{{ role_path }}/results:/root/results"
+
+    - name: Check REST API tests status
+      shell: docker ps -a -f name="api-tests-{{ function_name }}" --format {%raw%}"{{.Status}}"{%endraw%} | head -n 1
+      register: result
+      until: result.stdout.count("Exited") == 1
+      retries: "{{ default_retries }}"
+      delay: "{{ default_delay }}"
+
+    - name: Fail the play if exit code != 0
+      fail:
+        msg: "Docker exit code != 0"
+      when: result.stdout.count("Exited (0)") != 1
+
+    - name: Remove REST API docker container
+      docker_container:
+        name: "api-tests-{{ function_name }}"
+        state: absent
+
+    - debug:
+        msg: "{{ api_tests_output }}"
+
+    - name: Delete {{ function_name }} function
+      docker_service:
+        project_src: "{{ role_path }}/files"
+        files: "docker-compose-{{ function_name }}.yml"
+        state: absent
+      register: output
+
+    - debug:
+        var: output
+  when: function_dependencies == ''
