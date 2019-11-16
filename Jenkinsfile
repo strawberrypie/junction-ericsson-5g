@@ -5,7 +5,6 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-                cleanWs()
                 checkout scm
                 sh "make build"
             }
