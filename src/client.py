@@ -5,6 +5,7 @@ import json
 import logging
 import random
 import time
+import uuid
 
 import requests
 
@@ -13,6 +14,7 @@ import lxml.html as lh
 SERVER_URL = 'http://127.0.0.1:8080'
 ADMIN_URL = SERVER_URL + '/admin'
 GAME_START_URL = ADMIN_URL + '/start'
+GAME_STOP_URL = ADMIN_URL + '/stop'
 API_BASE_URL = SERVER_URL + '/api/v1'
 WORLD_STATUS_URL = API_BASE_URL + '/world'
 TEAM_BASE_URL = ADMIN_URL + '/team'
@@ -60,7 +62,7 @@ def send_post_request(url, data=None, token=None):
 
 
 def add_team_and_get_token():
-    team_name = 'anton-and-dima'
+    team_name = f'anton-and-dima-{uuid.uuid1()}'
     body = send_post_request(TEAM_BASE_URL, {'team_name': team_name})
 
     # Store the contents of the website under doc
@@ -72,12 +74,17 @@ def add_team_and_get_token():
 
     logging.info('Added team %s', team_name)
 
-    return token
+    return team_name, token
 
 
 def start_game():
     send_put_request(GAME_START_URL)
     logging.info('Started game')
+
+
+def stop_game():
+    send_put_request(GAME_STOP_URL)
+    logging.info('Stopped game')
 
 
 def get_world():
@@ -224,6 +231,14 @@ def get_cars(world):
     return cars
 
 
+def get_team_stats(team_name, world):
+    for team_id, stats in world['teams'].items():
+        if stats['name'] == team_name:
+            return int(team_id), stats['score']
+    else:
+        return None
+
+
 def move_car(car_id, direction, token):
     logging.debug('Moving car ID %d to the %s', car_id, direction.name)
     request_content = json.dumps({
@@ -292,7 +307,7 @@ def move_cars(token, world, previous_car_directions=None):
 
 def main():
     setup()
-    token = add_team_and_get_token()
+    team_name, token = add_team_and_get_token()
     start_game()
     world = get_world()
 
