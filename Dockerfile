@@ -20,7 +20,7 @@ RUN apt update -y \
 
 WORKDIR /root
 COPY . .
-RUN dpkg -i city-sim_1.0.3_amd64.deb || /bin/true
+RUN dpkg -i city-sim_1.0.4_amd64.deb || /bin/true
 RUN pip3 install -r src/requirements.txt
 WORKDIR /opt/city
 EXPOSE 8080
