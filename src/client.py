@@ -5,6 +5,7 @@ import json
 import logging
 import random
 import time
+import string
 
 import requests
 
@@ -65,7 +66,7 @@ def send_post_request(url, data=None, token=None):
 
 
 def add_team_and_get_token():
-    team_name = 'anton-and-dima'
+    team_name = 'anton-and-dima-' + ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=10))
     body = send_post_request(TEAM_BASE_URL, {'team_name': team_name})
 
     # Store the contents of the website under doc
