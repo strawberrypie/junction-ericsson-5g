@@ -11,7 +11,9 @@ pipeline {
         }
         stage("Push") {
             steps {
-                sh "make push"
+                docker.withRegistry('https://registry.hub.docker.com', 'hub.docker.com') {
+                    sh "make push"
+		}
             }
         }
     }
