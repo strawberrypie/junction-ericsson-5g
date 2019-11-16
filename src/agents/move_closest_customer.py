@@ -26,8 +26,8 @@ def make_graph(world):
 
 
 class MoveClosestCustomerAgent(Agent):
-    def __init__(self, team_name=None):
-        super().__init__(team_name=team_name)
+    def __init__(self, team_name=None, token=None):
+        super().__init__(team_name=team_name, token=token)
         self.graph = None
 
     def get_next_direction(self, world, car_id, car):
