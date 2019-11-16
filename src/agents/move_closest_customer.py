@@ -57,7 +57,7 @@ class MoveClosestCustomerAgent(Agent):
                     state = 'searching'
         elif state == 'delivering':
             if self.cars_state[car_id]['prev_capacity'] > car['used_capacity']:
-                self.cars_state[car_id]['customers'].pop()
+                self.cars_state[car_id]['customers'].remove(self.cars_state[car_id]['curr_customer'])
                 self.cars_state[car_id]['prev_capacity'] = car['used_capacity']
                 if car['used_capacity'] > 0:
                     state = 'switch_delivering'
@@ -96,10 +96,9 @@ class MoveClosestCustomerAgent(Agent):
             elif state == 'delivering':
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
             elif state == 'switch_delivering':
-                self.cars_state[car_id]['curr_customer'] = self.cars_state[car_id]['customers'][-1]
+                self.cars_state[car_id]['curr_customer'] = self.get_closest_delivering_customer((car_x, car_y), car_id, world) #self.cars_state[car_id]['customers'][-1]
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
                 self.cars_state[car_id]['state'] = 'delivering'
-
 
             if target_pos is not None:
                 target_coord = index_to_coordinates(target_pos, world['width'])
@@ -133,6 +132,18 @@ class MoveClosestCustomerAgent(Agent):
                     world['width'])
             )
         )
+
+    def get_closest_delivering_customer(self, position, car_id, world):
+        return min(
+            self.cars_state[car_id]['customers'],
+            key=lambda cust_id: self.get_path_length(
+                position,
+                index_to_coordinates(
+                    self.cars_state[car_id]['customers'][cust_id]['destination'],
+                    world['width'])
+            )
+        )
+
 
     def get_closest_destination(self, current_coord, car_id, world):
         destination_positions = [
