@@ -9,10 +9,6 @@ class Agent(ABC):
     def __init__(self, team_name=None):
         self.team_name, self.token = add_team_and_get_token(team_name)
 
-    @property
-    def world(self):
-        return get_world(self.token)
-
     def move_car(self, world, car_id, car, new_direction):
         if new_direction:
             old_coordinates = index_to_coordinates(car['position'], world['width'])
@@ -33,6 +29,10 @@ class Agent(ABC):
             # appeared. Just leave its previous direction as it was
             logging.info('Car %s cannot move anywhere', car_id)
 
-    def move(self) -> NoReturn:
+    def move(self, world) -> NoReturn:
         """Send commands for each car to move."""
         raise NotImplementedError
+
+    def get_waiting_customers(self, world):
+        return {c_id: c for c_id, c in world['customers'].items() if c['status'] == 'waiting'}
+

@@ -67,9 +67,6 @@ class MoveClosestCustomerAgent(Agent):
             logging.info('All directions are bad!')
         return best_direction
 
-    def get_waiting_customers(self, world):
-        return {c_id: c for c_id, c in world['customers'].items() if c['status'] == 'waiting'}
-
     def get_closest_waiting_customer(self, position, world):
         return min(
             self.get_waiting_customers(world),
@@ -111,8 +108,7 @@ class MoveClosestCustomerAgent(Agent):
         except nx.exception.NetworkXNoPath:
             return float('+inf')
 
-    def move(self) -> NoReturn:
-        world = self.world
+    def move(self, world) -> NoReturn:
         cars = get_cars(world)
 
         self.graph = make_graph(world)
