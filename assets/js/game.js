@@ -1,9 +1,13 @@
 'use strict';
 
+const urlParams = new URLSearchParams(window.location.search);
+var serverHost = urlParams.get('server_host') || 'localhost';
+var serverPort = urlParams.get('server_port') || '8080';
+
 const visualsConfig = {
 // @serverAddr: Address of the server to connect to, eg. 'http://localhost:8000'
 //              If empty, uses the same server the visualization is hosted on.
-    serverAddr: "http://localhost:8080",
+    serverAddr: "http://" + serverHost + ":" + serverPort,
     updateInterval: 1000, // ms
     resolution: {
         x: 1280,
