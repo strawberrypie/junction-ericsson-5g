@@ -5,13 +5,13 @@ import json
 import logging
 import random
 import time
-import uuid
 import string
 
 import requests
 
 import lxml.html as lh
 import sys
+
 
 PORT_NUMBER = '8080'
 if len(sys.argv) == 2:
@@ -67,8 +67,11 @@ def send_post_request(url, data=None, token=None):
     return r
 
 
-def add_team_and_get_token():
-    team_name = 'anton-and-dima-' + ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=10))
+def add_team_and_get_token(team_name=None):
+    if team_name is None:
+        team_name = 'anton-and-dima-' + ''.join(random.choices(string.ascii_lowercase
+                                                               + string.ascii_uppercase
+                                                               + string.digits, k=10))
     body = send_post_request(TEAM_BASE_URL, {'team_name': team_name})
 
     # Store the contents of the website under doc
@@ -312,24 +315,16 @@ def move_cars(token, world, previous_car_directions=None):
 
 
 def main():
+    from agents.baseline import BaselineAgent
+
     setup()
-    team_name, token = add_team_and_get_token()
+
+    agent = BaselineAgent()
     start_game()
-    world = get_world()
 
-    previous_car_directions = {}
     while True:
-        logging.info('Starting new iteration')
-        world = get_world()
-        if not world:
-            # Game must have ended, start it again
-            logging.info('Game ended, starting again')
-            start_game()
-            continue
-
-        new_car_directions = move_cars(token, world, previous_car_directions)
-        previous_car_directions = new_car_directions
-        time.sleep(1)
+        agent.move()
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
