@@ -6,12 +6,18 @@ import logging
 import random
 import time
 import uuid
+import string
 
 import requests
 
 import lxml.html as lh
+import sys
 
-SERVER_URL = 'http://127.0.0.1:8080'
+PORT_NUMBER = '8080'
+if len(sys.argv) == 2:
+    PORT_NUMBER = sys.argv[1]
+
+SERVER_URL = 'http://127.0.0.1:' + PORT_NUMBER
 ADMIN_URL = SERVER_URL + '/admin'
 GAME_START_URL = ADMIN_URL + '/start'
 GAME_STOP_URL = ADMIN_URL + '/stop'
@@ -62,7 +68,7 @@ def send_post_request(url, data=None, token=None):
 
 
 def add_team_and_get_token():
-    team_name = f'anton-and-dima-{uuid.uuid1()}'
+    team_name = 'anton-and-dima-' + ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=10))
     body = send_post_request(TEAM_BASE_URL, {'team_name': team_name})
 
     # Store the contents of the website under doc
