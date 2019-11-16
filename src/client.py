@@ -13,8 +13,12 @@ import sys
 PORT_NUMBER = '8080'
 if len(sys.argv) == 2:
     PORT_NUMBER = sys.argv[1]
+SERVER_HOST = '127.0.0.1'
+if len(sys.argv) == 3:
+    SERVER_HOST = sys.argv[1]
+    PORT_NUMBER = sys.argv[2]
 
-SERVER_URL = 'http://127.0.0.1:' + PORT_NUMBER
+SERVER_URL = f'http://{SERVER_HOST}:{PORT_NUMBER}'
 ADMIN_URL = SERVER_URL + '/admin'
 GAME_START_URL = ADMIN_URL + '/start'
 GAME_STOP_URL = ADMIN_URL + '/stop'
@@ -312,21 +316,19 @@ def move_cars(token, world, previous_car_directions=None):
 
 
 def main():
-    from agents.baseline import BaselineAgent
     from agents.move_closest_customer import MoveClosestCustomerAgent
 
     setup()
 
     agent = MoveClosestCustomerAgent()
-    try:
-        start_game()
-    except:
-        print('The game already started! Continuing...')
 
     while True:
-        logging.info('New iteration started...')
-        agent.move()
-
+        world = get_world(agent.token)
+        if world:
+            logging.info('New iteration started...')
+            agent.move(world)
+        else:
+            logging.info('Game is stopped! Trying again...')
 
 if __name__ == '__main__':
     main()

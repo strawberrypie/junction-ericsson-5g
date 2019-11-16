@@ -9,7 +9,6 @@ class BaselineAgent(Agent):
         super().__init__(team_name=team_name)
         self.previous_car_directions = {}
 
-    def move(self) -> NoReturn:
-        world = self.world
+    def move(self, world) -> NoReturn:
         new_car_directions = move_cars(self.token, world, self.previous_car_directions)
         self.previous_car_directions = new_car_directions
