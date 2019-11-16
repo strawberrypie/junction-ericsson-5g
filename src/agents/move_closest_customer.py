@@ -111,12 +111,16 @@ class MoveClosestCustomerAgent(Agent):
     def move(self, world) -> NoReturn:
         current_team_id = [
             team
-            for team, team_info in world['teams']
+            for team, team_info in world['teams'].items()
             if team_info['name'] == self.team_name
         ][0]
 
         cars = get_cars(world)
-        current_player_cars = {car_id: car for car_id, car in cars if car['team_id'] == current_team_id}
+        current_player_cars = {
+            car_id: car
+            for car_id, car in cars.items()
+            if car['team_id'] == current_team_id
+        }
 
         self.graph = make_graph(world)
 
