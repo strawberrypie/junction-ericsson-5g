@@ -141,7 +141,7 @@ class MoveClosestCustomerAgent(Agent):
         destination_positions = [
             customer['destination']
             for customer in world['customers'].values()
-            if customer['status'] == 'in_car' and customer['car_id'] == car_id
+            if customer['status'] == 'in_car' and str(customer['car_id']) == car_id
         ]
 
         return self.get_closest_target(current_coord, destination_positions, world)

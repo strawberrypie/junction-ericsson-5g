@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  server:
+    image: "${image_name}"
+    ports:
+      - 8000:8000
+      - 8081:8080
+    network_mode: "host"
+
+  client:
+    image: "${image_name}"
+    command: python3 src/client.py 8081
+    network_mode: "host"
+
+  #ui:
+  #  image: "${IMAGE}"
+  #  command: bundle exec thin -p 3000
+  #  network_mode: "host"
