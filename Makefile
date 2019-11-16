@@ -31,3 +31,8 @@ push:
 	${DOCKER_CMD} push ${IMG_LATEST}
 
 	@echo "Push has finished!"
+
+run:
+
+	${DOCKER_CMD} pull ${IMG_LATEST}
+	${DOCKER_CMD} run -it --rm -p 8081:8080 ${IMG_LATEST}
