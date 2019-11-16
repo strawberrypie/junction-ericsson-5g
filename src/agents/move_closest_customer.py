@@ -35,27 +35,16 @@ class MoveClosestCustomerAgent(Agent):
 
         possible_directions = get_possible_directions(world, car['position'])
         if possible_directions:
-            # Case: no waiting customers — we don't move
-            if not len(self.get_waiting_customers(world)):
-                return None
-
-            target_pos = None
-            # Case: car is empty — move to closest customer
-            if car['used_capacity'] == 0:
-                closest_customer_id = self.get_closest_waiting_customer((car_x, car_y), world)
-                closest_customer_pos = world['customers'][closest_customer_id]['origin']
-                target_pos = closest_customer_pos
-            # Case: car has customers — move to closest customer or to closest destination
-            elif car['used_capacity'] > 0:
-                closest_customer_id = self.get_closest_waiting_customer((car_x, car_y), world)
-                closest_customer_pos = world['customers'][closest_customer_id]['origin']
-
+            possible_targets = []
+            if car['used_capacity'] < car['capacity']:  # Case: car has free seats
+                if len(self.get_waiting_customers(world)):  # Go to waiting customer
+                    closest_customer_id = self.get_closest_waiting_customer((car_x, car_y), world)
+                    closest_customer_pos = world['customers'][closest_customer_id]['origin']
+                    possible_targets.append(closest_customer_pos)
+            if car['used_capacity'] > 0:  # Case: car has customers
                 closest_destination_pos = self.get_closest_destination((car_x, car_y), car_id, world)
-                target_pos = self.get_closest_target(
-                    (car_x, car_y),
-                    [closest_customer_pos, closest_destination_pos],
-                    world
-                )
+                possible_targets.append(closest_destination_pos)
+            target_pos = self.get_closest_target((car_x, car_y), possible_targets, world)
             if target_pos is not None:
                 target_coord = index_to_coordinates(target_pos, world['width'])
                 return self.get_best_direction(world, car_x, car_y, target_coord)
@@ -96,7 +85,7 @@ class MoveClosestCustomerAgent(Agent):
         destination_positions = [
             customer['destination']
             for customer in world['customers'].values()
-            if customer['status'] == 'in_car' and customer['car_id'] == car_id
+            if customer['status'] == 'in_car' and str(customer['car_id']) == car_id
         ]
 
         return self.get_closest_target(current_coord, destination_positions, world)
