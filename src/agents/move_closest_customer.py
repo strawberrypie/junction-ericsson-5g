@@ -2,6 +2,7 @@ import logging
 from typing import NoReturn
 
 import networkx as nx
+from joblib import Parallel, delayed
 
 from client import (
     get_cars,
@@ -124,6 +125,11 @@ class MoveClosestCustomerAgent(Agent):
 
         self.graph = make_graph(world)
 
-        for car_id, car in current_player_cars.items():
-            new_direction = self.get_next_direction(world, car_id, car)
-            self.move_car(world, car_id, car, new_direction)
+        Parallel(n_jobs=len(cars))(
+            delayed(
+                lambda car_id, car: self.move_car(
+                    world, car_id, car,
+                    self.get_next_direction(world, car_id, car)
+                )
+            )(car_id, car) for car_id, car in current_player_cars.items()
+        )
