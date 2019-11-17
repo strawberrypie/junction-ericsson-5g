@@ -57,8 +57,8 @@ class AgentStateMachine(Agent):
                     state = 'searching'
         elif state == 'delivering':
             if car['position'] == self.cars_state[car_id]['curr_customer']['destination']:
-                self.cars_state[car_id]['customers'].pop()
-                #self.cars_state[car_id]['customers'].remove(self.cars_state[car_id]['curr_customer'])
+                #self.cars_state[car_id]['customers'].pop()
+                self.cars_state[car_id]['customers'].remove(self.cars_state[car_id]['curr_customer'])
                 self.cars_state[car_id]['prev_capacity'] -= 1
                 self.cars_state[car_id]['curr_client'] = None
                 if self.cars_state[car_id]['prev_capacity'] > 0:
@@ -101,7 +101,7 @@ class AgentStateMachine(Agent):
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
                 print(index_to_coordinates(target_pos, world['width']))
             elif state == 'switch_delivering':
-                self.cars_state[car_id]['curr_customer'] = self.cars_state[car_id]['customers'][-1] #self.get_closest_delivering_customer((car_x, car_y), car_id, world)
+                self.cars_state[car_id]['curr_customer'] =  self.get_closest_delivering_customer((car_x, car_y), car_id, world) # self.cars_state[car_id]['customers'][-1]
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
                 self.cars_state[car_id]['state'] = 'delivering'
 
