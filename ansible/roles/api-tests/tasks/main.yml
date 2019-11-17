@@ -74,4 +74,3 @@
 
     - debug:
         var: output
-  when: function_dependencies == ''
