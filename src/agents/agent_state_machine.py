@@ -136,10 +136,10 @@ class AgentStateMachine(Agent):
     def get_closest_delivering_customer(self, position, car_id, world):
         return min(
             self.cars_state[car_id]['customers'],
-            key=lambda cust_id: self.get_path_length(
+            key=lambda cust: self.get_path_length(
                 position,
                 index_to_coordinates(
-                    self.cars_state[car_id]['customers'][cust_id]['destination'],
+                    cust['destination'],
                     world['width'])
             )
         )
