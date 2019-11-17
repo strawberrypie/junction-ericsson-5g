@@ -2,14 +2,14 @@ version: '3'
 
 services:
   server:
-    image: "{{image_name}}"
+    image: "dfkozlov/junction-ericsson-5g_master:latest"
     ports:
       - 8000:8000
       - 8080:8080
     network_mode: "host"
 
   client:
-    image: "{{image_name}}"
+    image: "dfkozlov/junction-ericsson-5g_master:latest"
     command: bash /root/start.sh
     network_mode: "host"
 

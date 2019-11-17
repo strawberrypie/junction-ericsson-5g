@@ -1,3 +1,5 @@
+- set_fact: function_name="test"
+
 - block:
     - name: Stop all docker containers
       shell: docker stop $(docker ps -a -q) | echo "All docker containers were stopped"
@@ -35,21 +37,32 @@
     - debug:
         var: output
 
+    - name: Check all port numbers are accessible from current host
+      wait_for:
+        host: 127.0.0.1
+        port: "{{ item }}"
+        state: started         # Port should be open
+        delay: "{{ default_delay }}"
+        timeout: 10
+      ignore_errors: yes
+      with_items:
+        - 8080
+
     - name: Run REST API tests
       register: api_tests_output
       docker_container:
-        command: /bin/bash -c "curl localhost:8081/api/v1/score"
+        command: /bin/bash -c "rm /root/logs.txt; while nc -z localhost 8080; do sleep 0.1; curl http://127.0.0.1:8080/api/v1/scores >> /root/logs.txt; done"
         name: "api-tests-{{ function_name }}"
-        image: "{{ api_tests_image }}"
+        image: "{{ image_name }}"
         network_mode: "host"
         volumes:
-          - "{{ role_path }}/results:/root/results"
+          - "{{ role_path }}/results:/root"
 
     - name: Check REST API tests status
       shell: docker ps -a -f name="api-tests-{{ function_name }}" --format {%raw%}"{{.Status}}"{%endraw%} | head -n 1
       register: result
       until: result.stdout.count("Exited") == 1
-      retries: "{{ default_retries }}"
+      retries: 999
       delay: "{{ default_delay }}"
 
     - name: Fail the play if exit code != 0
@@ -57,7 +70,7 @@
         msg: "Docker exit code != 0"
       when: result.stdout.count("Exited (0)") != 1
 
-    - name: Remove REST API docker container
+   - name: Remove REST API docker container
       docker_container:
         name: "api-tests-{{ function_name }}"
         state: absent
@@ -74,4 +87,3 @@
 
     - debug:
         var: output
-  when: function_dependencies == ''

@@ -1,0 +1,5 @@
+# Default Settings
+# Ansible settings
+default_delay: 30
+default_retries: 60
+
