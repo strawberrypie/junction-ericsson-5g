@@ -25,7 +25,7 @@ def make_graph(world):
     return graph
 
 
-class MoveClosestCustomerAgent(Agent):
+class GreedyAgent(Agent):
     def __init__(self, team_name=None, token=None):
         super().__init__(team_name=team_name, token=token)
         self.graph = None

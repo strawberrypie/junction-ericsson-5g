@@ -70,6 +70,18 @@
     #    msg: "Docker exit code != 0"
     #  when: result.stdout.count("Exited (0)") != 1
 
+    - name: Get server logs
+      shell: docker logs files_server_1 > /root/server_{{ custom_maps | replace('/','_') }}.log
+      ignore_errors: true
+
+    - name: Get client logs
+      shell: docker logs files_client_1 > /root/client_{{ custom_maps | replace('/','_') }}.log
+      ignore_errors: true
+
+    - name: Get curl logs
+      shell: docker logs api-tests-test > /root/curl_{{ custom_maps | replace('/','_') }}.log
+      ignore_errors: true
+
     - name: Remove REST API docker container
       docker_container:
         name: "api-tests-{{ function_name }}"
