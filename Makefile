@@ -25,7 +25,7 @@ build:
 	@echo "Build has finished!"
 
 api-tests:
-	/bin/pushd ansible;
+	pushd ansible;
 	pwd;
 	ls;
 	export IMG_HASHED=${IMG_HASHED};
