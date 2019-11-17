@@ -12,20 +12,20 @@ pipeline {
                 sh "make build"
             }
         }
-        stage("Tests") {
-            steps {
-	        sh '''#!/bin/bash
-                    make api-tests
-                '''
-                archiveArtifacts artifacts: "ansible/roles/api-tests/results/**/*", fingerprint: true
-            }
-        }
         stage("Push") {
             steps {
 	        withCredentials([string(credentialsId: 'hub.docker.com', variable: 'PASSWORD')]) {
 		    sh "docker login -u=dfkozlov -p=$PASSWORD"
 		    sh "make push"
 		}
+            }
+        }
+        stage("Tests") {
+            steps {
+	        sh '''#!/bin/bash
+                    make api-tests
+                '''
+                archiveArtifacts artifacts: "ansible/roles/api-tests/results/**/*", fingerprint: true
             }
         }
     }
