@@ -24,12 +24,12 @@ build:
 	@echo "Build has finished!"
 
 api-tests:
-	cd ansible;
+	pushd ansible;
 	pwd;
 	ls;
 	export IMG_HASHED=${IMG_HASHED};
-	ansible-playbook playbooks/api-tests.yml -e "image_name=\\$IMG_HASHED";
-	cd ../;
+	ansible-playbook playbooks/api-tests.yml -e "image_name=$$(IMG_HASHED)";
+	popd;
 
 push:
 
