@@ -1,3 +1,4 @@
+SHELL      = /bin/bash
 REGISTRY   := dfkozlov
 
 GIT_REPO   := $$(basename -s .git `git config --get remote.origin.url`)
@@ -24,7 +25,7 @@ build:
 	@echo "Build has finished!"
 
 api-tests:
-	pushd ansible;
+	/bin/pushd ansible;
 	pwd;
 	ls;
 	export IMG_HASHED=${IMG_HASHED};
