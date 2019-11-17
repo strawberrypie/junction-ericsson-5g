@@ -14,7 +14,9 @@ pipeline {
         }
         stage("Tests") {
             steps {
-		bash "make api-tests"
+	        sh '''#!/bin/bash
+                    make api-tests
+                '''
                 archiveArtifacts artifacts: "roles/api-tests/results/**/*", fingerprint: true
             }
         }
