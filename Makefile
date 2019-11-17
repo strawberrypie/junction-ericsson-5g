@@ -28,7 +28,9 @@ api-tests:
 	cd ansible; \
 	export IMG_HASHED=${IMG_HASHED}; \
 	ansible-playbook playbooks/api-tests.yml -e "image_name=$$IMG_HASHED" -e "custom_config=/root/game-config.json" -e "custom_maps=/root/custom_maps/manhattan"; \
-	ansible-playbook playbooks/api-tests.yml -e "image_name=$$IMG_HASHED" -e "custom_config=/root/game-config.json" -e "custom_maps=/root/custom_maps/ForbiddenCity";
+	ansible-playbook playbooks/api-tests.yml -e "image_name=$$IMG_HASHED" -e "custom_config=/root/game-config.json" -e "custom_maps=/root/custom_maps/ForbiddenCity"; \
+	ansible-playbook playbooks/api-tests.yml -e "image_name=$$IMG_HASHED" -e "custom_config=/root/game-config.json" -e "custom_maps=/root/custom_maps/budapest"; \
+	ansible-playbook playbooks/api-tests.yml -e "image_name=$$IMG_HASHED" -e "custom_config=/root/game-config.json" -e "custom_maps=/root/custom_maps/IslandsAndBridges";
 
 push:
 
