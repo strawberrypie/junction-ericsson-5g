@@ -14,10 +14,8 @@ pipeline {
         }
         stage("Tests") {
             steps {
-                dir ('ansible') {
-		    sh "ansible-playbook playbooks/api-tests.yml"
-                    archiveArtifacts artifacts: "roles/api-tests/results/**/*", fingerprint: true
-                }
+		sh "make api-tests"
+                archiveArtifacts artifacts: "roles/api-tests/results/**/*", fingerprint: true
             }
         }
         stage("Push") {
