@@ -16,6 +16,7 @@ RUN apt update -y \
     jq \
     silversearcher-ag \
     httpie \
+    netcat \
     systemd
 
 WORKDIR /root
