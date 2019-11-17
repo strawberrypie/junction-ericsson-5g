@@ -279,7 +279,7 @@ def move_cars(token, world, previous_car_directions=None):
 
 
 def main():
-    from agents.agent_state_machine import AgentStateMachine
+    from agents.greedy import GreedyAgent
 
     setup()
 
@@ -287,7 +287,7 @@ def main():
         team_name = sys.argv[2]
         token = sys.argv[3]
 
-    agent = AgentStateMachine(team_name=team_name, token=token)
+    agent = GreedyAgent(team_name=team_name, token=token)
 
     while True:
         world = get_world(agent.token)
