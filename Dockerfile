@@ -16,11 +16,12 @@ RUN apt update -y \
     jq \
     silversearcher-ag \
     httpie \
+    netcat \
     systemd
 
 WORKDIR /root
 COPY . .
-RUN dpkg -i city-sim_1.0.4_amd64.deb || /bin/true
+RUN dpkg -i city-sim_1.0.5_amd64.deb || /bin/true
 RUN pip3 install -r src/requirements.txt
 WORKDIR /opt/city
 EXPOSE 8080

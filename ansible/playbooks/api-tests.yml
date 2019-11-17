@@ -2,14 +2,9 @@
   connection: local
   vars_files:
     - ../vars-files/default.yml
-    - "{{ deployment_async_file }}"
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   pre_tasks:
-    - name: Gather facts for first time
-      setup:
-
     - debug:
         msg: "{{ hostvars }}"
   roles:
     - { role: api-tests }
-

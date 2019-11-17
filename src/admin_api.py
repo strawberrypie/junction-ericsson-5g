@@ -62,7 +62,5 @@ if __name__ == '__main__':
     if len(sys.argv) >= 3:
         team_name = sys.argv[2]
         _, token = admin_api.add_team_and_get_token(team_name)
-        print(f'Team name: {team_name} | Token: {token}')
-
-    print('Starting the game!')
+        print(team_name + ' ' + token)
     admin_api.start_game()

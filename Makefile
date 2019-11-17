@@ -1,3 +1,4 @@
+SHELL      = /bin/bash
 REGISTRY   := dfkozlov
 
 GIT_REPO   := $$(basename -s .git `git config --get remote.origin.url`)
@@ -22,6 +23,12 @@ build:
 	${DOCKER_CMD} build -t ${IMG_HASHED} -t ${IMG_LATEST} .
 
 	@echo "Build has finished!"
+
+api-tests:
+	cd ansible; \
+	export IMG_HASHED=${IMG_HASHED}; \
+	ansible-playbook playbooks/api-tests.yml -e "image_name=$$IMG_HASHED" -e "custom_config=/root/game-config.json" -e "custom_maps=/root/custom_maps/manhattan";
+	ansible-playbook playbooks/api-tests.yml -e "image_name=$$IMG_HASHED" -e "custom_config=/root/game-config.json" -e "custom_maps=/root/custom_maps/ForbiddenCity";
 
 push:
 
