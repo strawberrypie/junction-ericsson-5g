@@ -37,7 +37,7 @@ class AgentStateMachine(Agent):
         if state == 'searching':
             return state
         elif state == 'getting_customer':
-            if self.cars_state[car_id]['prev_capacity'] < car['used_capacity']:
+            if car['position'] == self.cars_state[car_id]['curr_customer']['origin']:
                 print('Car ' + str(car_id) + ' has grabbed a client')
                 self.cars_state[car_id]['customers'].append(self.cars_state[car_id]['curr_customer'])
                 self.cars_state[car_id]['curr_customer'] = None
@@ -56,10 +56,12 @@ class AgentStateMachine(Agent):
                 else:
                     state = 'searching'
         elif state == 'delivering':
-            if self.cars_state[car_id]['prev_capacity'] > car['used_capacity']:
-                self.cars_state[car_id]['customers'].remove(self.cars_state[car_id]['curr_customer'])
-                self.cars_state[car_id]['prev_capacity'] = car['used_capacity']
-                if car['used_capacity'] > 0:
+            if car['position'] == self.cars_state[car_id]['curr_customer']['destination']:
+                self.cars_state[car_id]['customers'].pop()
+                #self.cars_state[car_id]['customers'].remove(self.cars_state[car_id]['curr_customer'])
+                self.cars_state[car_id]['prev_capacity'] -= 1
+                self.cars_state[car_id]['curr_client'] = None
+                if self.cars_state[car_id]['prev_capacity'] > 0:
                     state = 'switch_delivering'
                 else:
                     state = 'searching'
@@ -94,9 +96,12 @@ class AgentStateMachine(Agent):
             elif state == 'getting_customer':
                 target_pos =  self.cars_state[car_id]['curr_customer']['origin']
             elif state == 'delivering':
+                print('Delivering')
+                print(str(car_x) + ' ' + str(car_y))
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
+                print(index_to_coordinates(target_pos, world['width']))
             elif state == 'switch_delivering':
-                self.cars_state[car_id]['curr_customer'] = self.get_closest_delivering_customer((car_x, car_y), car_id, world) #self.cars_state[car_id]['customers'][-1]
+                self.cars_state[car_id]['curr_customer'] = self.cars_state[car_id]['customers'][-1] #self.get_closest_delivering_customer((car_x, car_y), car_id, world)
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
                 self.cars_state[car_id]['state'] = 'delivering'
 
