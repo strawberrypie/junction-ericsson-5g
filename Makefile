@@ -25,7 +25,8 @@ build:
 
 api-tests:
 	cd ansible;
-	ansible-playbook playbooks/api-tests.yml -e "image_name=${IMG_HASHED}"
+	export IMG_HASHED=${IMG_HASHED};
+	ansible-playbook playbooks/api-tests.yml -e "image_name=$IMG_HASHED";
 	cd ../;
 
 push:
