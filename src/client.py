@@ -307,7 +307,7 @@ def main():
 
         score = get_team_stats(team_name, world)[0]
         key = f"score_{dt.now().timestamp()}"
-        store.put(key, bytes(f"{score}"))
+        store.put(key, bytes(f"{score}", 'utf-8'))
 
         if world:
             logging.info('New iteration started...')
