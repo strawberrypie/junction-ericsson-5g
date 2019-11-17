@@ -7,6 +7,10 @@ import random
 import requests
 import sys
 
+from simplekv.memory.redisstore import RedisStore
+import redis
+from simplekv.net.azurestore import AzureBlockBlobStore
+from datetime import datetime as dt
 
 SERVER_URL = f'http://127.0.0.1:8081'
 if len(sys.argv) >= 2:
@@ -283,6 +287,15 @@ def main():
 
     setup()
 
+    # conn_string = 'DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=KT22G-PJXCR-V7P4C-WKVGM-M6VHZ;'
+    # store = AzureBlockBlobStore(conn_string=conn_string, container='5GContainer', public=False)
+
+    store = RedisStore(redis.StrictRedis(
+        host="redis-23fac1c1-dmitry-3d59.aivencloud.com",
+        port=23023,
+        password="g9p39ue7dsvsaoiw")
+    )
+
     if len(sys.argv) == 4:
         team_name = sys.argv[2]
         token = sys.argv[3]
@@ -291,6 +304,11 @@ def main():
 
     while True:
         world = get_world(agent.token)
+
+        score = get_team_stats(team_name, world)[0]
+        key = f"score_{dt.now().timestamp()}"
+        store.put(key, bytes(f"{score}"))
+
         if world:
             logging.info('New iteration started...')
             agent.move(world)
