@@ -3,6 +3,7 @@ version: '3'
 services:
   server:
     image: "{{image_name}}"
+    command: sudo /opt/city/citysim -config /opt/city/server2/game-config.json -map-dir /root/custom_maps
     ports:
       - 8000:8000
       - 8080:8080
