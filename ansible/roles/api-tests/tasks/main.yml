@@ -61,10 +61,9 @@
     - name: Check REST API tests status
       shell: docker ps -a -f name="api-tests-{{ function_name }}" --format {%raw%}"{{.Status}}"{%endraw%} | head -n 1
       register: result
-      until: result.stdout.count("Exited") == 1
+      until: result.stdout.count("Exited") == 1 or result.stdout.count("Up 6 minutes") == 1
       retries: 11
       delay: "{{ default_delay }}"
-      ignore_errors: yes
 
     #- name: Fail the play if exit code != 0
     #  fail:
