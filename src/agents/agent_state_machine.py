@@ -64,7 +64,7 @@ class AgentStateMachine(Agent):
                 else:
                     state = 'searching'
             else:
-                state == 'delivering'
+                state = 'delivering'
 
         return state
 
