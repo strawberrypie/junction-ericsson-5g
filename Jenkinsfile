@@ -17,7 +17,7 @@ pipeline {
 	        sh '''#!/bin/bash
                     make api-tests
                 '''
-                archiveArtifacts artifacts: "roles/api-tests/results/**/*", fingerprint: true
+                archiveArtifacts artifacts: "ansible/roles/api-tests/results/**/*", fingerprint: true
             }
         }
         stage("Push") {
