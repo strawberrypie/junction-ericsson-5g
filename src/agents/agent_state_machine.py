@@ -38,7 +38,6 @@ class AgentStateMachine(Agent):
             return state
         elif state == 'getting_customer':
             if car['position'] == self.cars_state[car_id]['curr_customer']['origin']:
-                print('Car ' + str(car_id) + ' has grabbed a client')
                 self.cars_state[car_id]['customers'].append(self.cars_state[car_id]['curr_customer'])
                 self.cars_state[car_id]['curr_customer'] = None
                 self.cars_state[car_id]['prev_capacity'] += 1
@@ -83,9 +82,6 @@ class AgentStateMachine(Agent):
             # Case: car is empty — move to closest customer
             state = self.get_next_state(world, car_id, car)
             self.cars_state[car_id][state] = state
-            print('Car ' + str(car_id) + ' state: ' + state + '; capacity : ' + str(car['used_capacity']) +
-                  ' ; max: ' + str(car['capacity']))
-            print(self.cars_state[car_id]['customers'])
             if state == 'searching':
                 closest_customer_id = self.get_closest_waiting_customer((car_x, car_y), world)
                 closest_customer_pos = world['customers'][closest_customer_id]['origin']
@@ -96,8 +92,6 @@ class AgentStateMachine(Agent):
             elif state == 'getting_customer':
                 target_pos =  self.cars_state[car_id]['curr_customer']['origin']
             elif state == 'delivering':
-                print('Delivering')
-                print(str(car_x) + ' ' + str(car_y))
                 target_pos = self.cars_state[car_id]['curr_customer']['destination']
                 print(index_to_coordinates(target_pos, world['width']))
             elif state == 'switch_delivering':
@@ -182,10 +176,20 @@ class AgentStateMachine(Agent):
 
     def move(self, world) -> NoReturn:
         cars = get_cars(world)
+        current_team_id = int([
+              team_id
+              for team_id, team_info in world['teams'].items()
+              if team_info['name'] == self.team_name
+          ][0])
+        current_player_cars = {
+            car_id: car
+            for car_id, car in cars.items()
+            if car['team_id'] == current_team_id
+        }
 
         if self.cars_state is None:
             self.cars_state = {}
-            for car_id, car in cars.items():
+            for car_id, car in current_player_cars.items():
                 self.cars_state[car_id] = {
                     'state': 'searching',
                     'customers': [],
@@ -195,6 +199,6 @@ class AgentStateMachine(Agent):
 
         self.graph = make_graph(world)
 
-        for car_id, car in cars.items():
+        for car_id, car in current_player_cars.items():
             new_direction = self.get_next_direction(world, car_id, car)
             self.move_car(world, car_id, car, new_direction)
